@@ -1,37 +1,30 @@
-// Importing statements
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
-const app = require('express')();
+const express = require('express');
+const app = express();
 const http = require('http');
-const cors = require('cors');
-const { Server } = require('socket.io');
-
-// Middleware
-app.use(cors());
-
 const server = http.createServer(app);
-
+const { Server } = require("socket.io");
 const io = new Server(server, {
     cors: {
         origin: process.env.FRONTEND_URL,
         methods: ['GET', 'POST']
     }
-})
+});
 
-io.on("connection", (socket) => {
-    console.log("New socket connection: ", socket.id);
+io.on('connection', (socket) => {
+    console.log('Socket connection established: ', socket.id);
 
-    socket.on("join_room", (data) => {
-        socket.join(data);
-        console.log(`User with id = ${socket.id} has joined room ${data}...`);
+    socket.on("sendMessage", ({ message }) => {
+        console.log("Message received: ", message);
     })
 
     socket.on("disconnect", () => {
-        console.log("User disconnected: ", socket.id);
+        console.log(`${socket.id} disconnected!`);
     })
-})
+});
 
 server.listen(process.env.BACKEND_PORT, () => {
-    console.log(`Backend started on port ${process.env.BACKEND_PORT}`);
-})
+    console.log(`Listening on port ${process.env.BACKEND_PORT}`);
+});
